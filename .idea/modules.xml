@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/CastImages.iml" filepath="$PROJECT_DIR$/CastImages.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cast4New/cast4New.iml" filepath="$PROJECT_DIR$/cast4New/cast4New.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cast4Older/cast4Older.iml" filepath="$PROJECT_DIR$/cast4Older/cast4Older.iml" />
+    </modules>
+  </component>
+</project>
+
