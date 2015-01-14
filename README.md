@@ -1,16 +1,16 @@
 # google-cast-local
 
-
-
 This is a sample project to test how to use google cast.
 
-### Depedency
+
+# Depedency
 > - com.google.android.gms:play-services-cast:`6.5.87`
 > - com.android.support:mediarouter-v7:`21.0.3`
 > - com.android.support:appcompat-v7:`21.0.3`
 > - [NanoHTTPD](https://github.com/NanoHttpd/nanohttpd)
 
-### In this project you can:
+
+# In this project you can:
 
 > - **Cast image from internet**
 >> ChromeCast request image from internet directly
@@ -18,11 +18,16 @@ This is a sample project to test how to use google cast.
 > - **Cast local image**
 >> After choosing an image from local by startActiviytForResult. Then this it will cast this image to ChromeCast, then ChromeCast will request local http Server in you device.And server will return the image to ChromeCast.
 
-### ScreenShots
+
+# ScreenShots
 
 > - MainActivity: 
 > 
 > ![image](images/ascreenshot-20150114-154148.png)
+
+> - Choose cast deivce: 
+> 
+> ![image](images/ascreenshot-20150114-161142.png)
 
 > - Choose image of internet: 
 > 
@@ -37,7 +42,8 @@ This is a sample project to test how to use google cast.
 > ![image](images/tv-screenshot01.jpg)
 
 
-### Me
+
+# Me
 
 > - WEIBO: [@hyongbai](http://weibo/hyongbai)
 > - TWEET: [@hyongbai](http://twitter.com/hyongbai)
