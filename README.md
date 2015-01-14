@@ -13,7 +13,7 @@ This is a sample project to test how to use google cast.
 ### In this project you can:
 
 > - **Cast image from internet**
->> -  ChromeCast request image from internet directly
+>> ChromeCast request image from internet directly
 
 > - **Cast local image**
 >> After choosing an image from local by startActiviytForResult. Then this it will cast this image to ChromeCast, then ChromeCast will request local http Server in you device.And server will return the image to ChromeCast.
