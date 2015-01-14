@@ -22,19 +22,19 @@ This is a sample project to test how to use google cast.
 
 > - MainActivity: 
 > 
-> ![image](ascreenshot-20150114-154148.png)
+> ![image](images/ascreenshot-20150114-154148.png)
 
 > - Choose image of internet: 
 > 
-> ![image](ascreenshot-20150114-154313.png)
+> ![image](images/ascreenshot-20150114-154313.png)
 
 > - Choose local image: 
 > 
-> ![image](ascreenshot-20150114-151016.png)
+> ![image](images/ascreenshot-20150114-151016.png)
 
 > - Cast on TV
 > 
-> ![image](tv-screenshot01.jpg)
+> ![image](images/tv-screenshot01.jpg)
 
 
 ### Me
