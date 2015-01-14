@@ -3,9 +3,12 @@ package yourbay.me.castimages.cast;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.MediaRouteActionProvider;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
@@ -23,11 +26,35 @@ import java.io.IOException;
 public class CastHelper {
 
     private final static String TAG = "CastHelper";
+    private boolean IS_DEBUG_MODE = true;
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mMediaRouteSelector;
     private CastDevice mSelectedDevice;
     private CastRouterCallback mMediaRouterCallback = new CastRouterCallback();
     private GoogleApiClient mApiClient;
+    private Cast.Listener mCastClientListener = new Cast.Listener() {
+        @Override
+        public void onApplicationStatusChanged() {
+            if (IS_DEBUG_MODE) {
+                Log.d(TAG, "onApplicationStatusChanged: " + (mApiClient != null ? Cast.CastApi.getApplicationStatus(mApiClient) : ""));
+            }
+        }
+
+        @Override
+        public void onVolumeChanged() {
+            if (IS_DEBUG_MODE) {
+                Log.d(TAG, "onVolumeChanged: " + (mApiClient != null ? Cast.CastApi.getVolume(mApiClient) : ""));
+            }
+        }
+
+        @Override
+        public void onApplicationDisconnected(int errorCode) {
+            if (IS_DEBUG_MODE) {
+                Log.d(TAG, "onApplicationDisconnected: " + errorCode);
+            }
+            teardown();
+        }
+    };
     private String mSessionId;
     private boolean mApplicationStarted;
     private boolean mWaitingForReconnect;
@@ -35,30 +62,20 @@ public class CastHelper {
     private ConnectionFailedListener mConnectionFailedListener = new ConnectionFailedListener();
     private HelloWorldChannel mHelloWorldChannel;
     private Context mContext;
-    private Cast.Listener mCastClientListener = new Cast.Listener() {
-        @Override
-        public void onApplicationStatusChanged() {
-            if (mApiClient != null) {
-                Log.d(TAG, "onApplicationStatusChanged: " + Cast.CastApi.getApplicationStatus(mApiClient));
-            }
-        }
 
-        @Override
-        public void onVolumeChanged() {
-            if (mApiClient != null) {
-                Log.d(TAG, "onVolumeChanged: " + Cast.CastApi.getVolume(mApiClient));
-            }
+    public CastHelper(Context context) {
+        mContext = context;
+        mMediaRouter = MediaRouter.getInstance(context);
+        mMediaRouteSelector = new MediaRouteSelector.Builder().addControlCategory(CastMediaControlIntent.categoryForCast(Consts.APP_ID)).build();
+        if (IS_DEBUG_MODE) {
+            Log.d(TAG, "onCreate " + mMediaRouter + " " + mMediaRouteSelector);
         }
-
-        @Override
-        public void onApplicationDisconnected(int errorCode) {
-            Log.d(TAG, "onApplicationDisconnected: " + errorCode);
-            teardown();
-        }
-    };
+    }
 
     private void onDeviceSelected() {
-        Log.d(TAG, "onDeviceSelected");
+        if (IS_DEBUG_MODE) {
+            Log.d(TAG, "onDeviceSelected");
+        }
         Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions.builder(mSelectedDevice, mCastClientListener);
         mApiClient = new GoogleApiClient.Builder(mContext)//
                 .addApi(Cast.API, apiOptionsBuilder.build())//
@@ -69,7 +86,6 @@ public class CastHelper {
     }
 
     private void launchReceiverApp() {
-        Log.d(TAG, "launchReceiverApp   mApiClient=" + (mApiClient != null));
         if (mApiClient == null) {
             return;
         }
@@ -77,7 +93,9 @@ public class CastHelper {
             @Override
             public void onResult(Cast.ApplicationConnectionResult result) {
                 Status status = result.getStatus();
-                Log.d(TAG, "launchReceiverApp	onResult=" + status.isSuccess() + " StatusCode=" + status.getStatusCode() + " StatusMessage=" + status.getStatusMessage());
+                if (IS_DEBUG_MODE) {
+                    Log.d(TAG, "launchReceiverApp	onResult=" + status.isSuccess() + " StatusCode=" + status.getStatusCode() + " StatusMessage=" + status.getStatusMessage());
+                }
                 if (status.isSuccess()) {
                     mApplicationStarted = true;
                     mHelloWorldChannel = new HelloWorldChannel();
@@ -95,12 +113,15 @@ public class CastHelper {
     }
 
     private void reconnectReceiverApp(Bundle connectionHint) {
-        Log.d(TAG, "reconnectReceiverApp");
         if ((connectionHint != null) && connectionHint.getBoolean(Cast.EXTRA_APP_NO_LONGER_RUNNING)) {
-            Log.d(TAG, "App  is no longer running");
+            if (IS_DEBUG_MODE) {
+                Log.d(TAG, "App  is no longer running");
+            }
             teardown();
         } else {
-            Log.d(TAG, "Re-create the custom message channel");
+            if (IS_DEBUG_MODE) {
+                Log.d(TAG, "Re-create the custom message channel");
+            }
             try {
                 Cast.CastApi.setMessageReceivedCallbacks(mApiClient, mHelloWorldChannel.getNamespace(), mHelloWorldChannel);
             } catch (IOException e) {
@@ -110,7 +131,9 @@ public class CastHelper {
     }
 
     private void teardown() {
-        Log.d(TAG, "teardown");
+        if (IS_DEBUG_MODE) {
+            Log.d(TAG, "teardown");
+        }
         if (mApiClient != null) {
             if (mApplicationStarted) {
                 if (mApiClient.isConnected() || mApiClient.isConnecting()) {
@@ -133,27 +156,21 @@ public class CastHelper {
         mWaitingForReconnect = false;
     }
 
-    public void onCreate(Context context) {
-        mContext = context;
-        mMediaRouter = MediaRouter.getInstance(context);
-        mMediaRouteSelector = new MediaRouteSelector.Builder().addControlCategory(CastMediaControlIntent.categoryForCast(Consts.APP_ID)).build();
-        Log.d(TAG, "onCreate " + mMediaRouter + " " + mMediaRouteSelector);
+    public void onCreateOptionsMenu(MenuItem item) {
+        MediaRouteActionProvider mProvider = (MediaRouteActionProvider) MenuItemCompat.getActionProvider(item);
+        mProvider.setRouteSelector(mMediaRouteSelector);
     }
 
-    public void onResume() {
+    public void start() {
         mMediaRouter.addCallback(mMediaRouteSelector, mMediaRouterCallback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
     }
 
-    public void onPause() {
+    public void stop() {
         mMediaRouter.removeCallback(mMediaRouterCallback);
     }
 
-    public GoogleApiClient getApiClient(){
+    public GoogleApiClient getApiClient() {
         return mApiClient;
-    }
-
-    public MediaRouteSelector getSelector() {
-        return mMediaRouteSelector;
     }
 
     private class CastRouterCallback extends MediaRouter.Callback {
